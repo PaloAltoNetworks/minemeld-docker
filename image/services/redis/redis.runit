@@ -1,0 +1,19 @@
+#!/bin/bash
+set -e
+
+## create RDB directory if it does not exists
+if [ ! -d /opt/minemeld/local/redis ] ; then
+    mkdir -p /opt/minemeld/local/redis
+fi
+
+## create run directory if it does not exists
+if [ ! -d /var/run/redis ] ; then
+    mkdir -p /var/run/redis
+fi
+
+## force ownership
+chown redis:redis /opt/minemeld/local/redis
+chown redis:redis /var/run/redis
+
+echo "Starting redis-server..."
+exec /usr/bin/redis-server /etc/redis/redis.conf --daemonize no

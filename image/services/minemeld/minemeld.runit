@@ -1,0 +1,72 @@
+#!/bin/bash
+set -e
+
+PIDFILE=/var/run/minemeld/minemeld.pid
+CONFIGFILE=/opt/minemeld/supervisor/config/supervisord.conf
+
+echo "minemeld: checking if dependencies are running..."
+sv status redis || exit 1
+sv status collectd || exit 1
+
+# check if committed-config exists
+if [ ! -f /opt/minemeld/local/config/committed-config.yml ] ; then
+	mkdir -p /opt/minemeld/local/config
+	mkdir -p /opt/minemeld/local/prototypes
+	mkdir -p /opt/minemeld/local/data
+	mkdir -p /opt/minemeld/local/library
+	mkdir -p /opt/minemeld/local/trace
+
+	echo "Copying default configs to the config directory..."
+	cp -R /usr/share/minemeld/config/* /opt/minemeld/local/config/
+
+	echo "Setting permissions on local directories..."
+	chown minemeld:minemeld -R /opt/minemeld/local/config
+	chown minemeld:minemeld -R /opt/minemeld/local/prototypes
+	chown minemeld:minemeld -R /opt/minemeld/local/data
+	chown minemeld:minemeld -R /opt/minemeld/local/library
+	chown minemeld:minemeld -R /opt/minemeld/local/trace
+fi
+
+# check certs directory, this was added later
+if [ ! -d /opt/minemeld/local/certs/site ] || [ ! -f /opt/minemeld/local/certs/cacert-merge-config.yml ]; then
+       mkdir -p /opt/minemeld/local/certs/site
+       touch /opt/minemeld/local/certs/cacert-merge-config.yml
+       chown minemeld:minemeld -R /opt/minemeld/local/certs
+fi
+
+echo "Copying constraints"
+cp /usr/share/minemeld/constraints.txt /opt/minemeld/local/library/
+chown minemeld:minemeld /opt/minemeld/local/library/constraints.txt
+
+if [ -f /opt/minemeld/local/library/freeze.txt ]; then
+	echo "Reinstalling external extensions"
+	sudo -u minemeld xargs -a /opt/minemeld/local/library/freeze.txt -n1 -d'\n' /bin/bash -c 'echo "$0" && (/opt/minemeld/engine/current/bin/pip install -c /opt/minemeld/local/library/constraints.txt $0 || true)'
+fi
+
+if [ -f /opt/minemeld/engine/current/bin/mm-cacert-merge ]; then
+	echo "Regenarating CA bundle"
+	/opt/minemeld/engine/current/bin/mm-cacert-merge --config /opt/minemeld/local/certs/cacert-merge-config.yml --dst /opt/minemeld/local/certs/bundle.crt /opt/minemeld/local/certs/site/
+fi
+
+# copy default API config anyway
+cp /usr/share/minemeld/config/api/10-defaults.yml /opt/minemeld/local/config/api
+
+# delete candidate config to force reload of running config
+/usr/bin/redis-cli  -s /var/run/redis/redis.sock del "mm:config:candidate"
+
+# set socket permission
+setfacl -Rdm g:minemeld:rwx /var/run/redis
+setfacl -m g:minemeld:rwx /var/run/redis/redis.sock
+
+# check if PID DIR exists (from rabbitmq init script)
+PIDDIR=$(dirname $PIDFILE)
+if [ ! -d ${PIDDIR} ] ; then
+	mkdir -p ${PIDDIR}
+	chown -R minemeld:minemeld ${PIDDIR}
+	chmod 755 ${PIDDIR}
+fi
+
+export REDIS_URL=unix:///var/run/redis/redis.sock
+
+echo "Starting minemeld..."
+exec /opt/minemeld/engine/current/bin/supervisord -u minemeld -n -c ${CONFIGFILE} --pidfile ${PIDFILE}

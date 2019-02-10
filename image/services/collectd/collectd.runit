@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+if [ ! -f /etc/collectd/collectd.conf ]; then
+    echo "Collectd: config files does not exist"
+    sleep 5
+    exit 1
+fi
+exec /usr/sbin/collectd -P /var/run/collectd.pid -f -C /etc/collectd/collectd.conf
