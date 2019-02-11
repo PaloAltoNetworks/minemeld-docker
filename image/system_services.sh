@@ -41,4 +41,3 @@ $minimal_apt_get_install runit
 
 ## Install minemeld
 /bd_build/services/minemeld/minemeld.sh
-find /opt/minemeld
