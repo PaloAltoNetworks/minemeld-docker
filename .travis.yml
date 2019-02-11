@@ -1,0 +1,7 @@
+language: ruby
+
+services:
+  - docker
+  
+script:
+  - cd image && docker build -t jtschichold/minemeld:$TRAVIS_BRANCH .
