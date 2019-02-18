@@ -11,6 +11,6 @@ after_success:
 
 deploy:
   provider: script
-  script: bash scripts/deploy-image.sh
+  script: chmod +x ./scripts/deploy-image.sh && ./scripts/deploy-image.sh
   on:
     branch: develop
