@@ -8,3 +8,9 @@ script:
 
 after_success:
   - docker images
+
+deploy:
+  provider: script
+  script: bash scripts/deploy-image.sh
+  on:
+    branch: develop
