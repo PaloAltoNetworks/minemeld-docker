@@ -46,6 +46,7 @@ apt-get dist-upgrade -y --no-install-recommends -o Dpkg::Options::="--force-conf
 # Install MineMeld APT Key and repo
 $minimal_apt_get_install wget
 wget -qO - https://minemeld-updates.panw.io/gpg.key | sudo apt-key add -
+add-apt-repository "deb http://minemeld-updates.panw.io/ubuntu xenial-minemeld main"
 add-apt-repository "deb http://minemeld-updates.panw.io/ubuntu xenial-minemeld-unstable main"
 apt-get update
 

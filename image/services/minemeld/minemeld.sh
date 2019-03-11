@@ -13,7 +13,7 @@ ln -sf /bin/true /usr/sbin/service
 [ -f $MM_BUILD_PATH/minemeld-auto-update.conf ] && cp $MM_BUILD_PATH/minemeld-auto-update.conf /etc
 
 ## Install minemeld.
-$minimal_apt_get_install -q -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold minemeld
+$minimal_apt_get_install -q -o Dpkg::Options::=--force-overwrite -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold minemeld
 mkdir /etc/service/minemeld
 cp $MM_BUILD_PATH/minemeld.runit /etc/service/minemeld/run
 
