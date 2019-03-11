@@ -13,7 +13,10 @@ ln -sf /bin/true /usr/sbin/service
 [ -f $MM_BUILD_PATH/minemeld-auto-update.conf ] && cp $MM_BUILD_PATH/minemeld-auto-update.conf /etc
 
 ## Install minemeld.
+mv /etc/redis/redis.conf /etc/redis/redis.conf.bak
 $minimal_apt_get_install -q -o Dpkg::Options::=--force-overwrite -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold minemeld
+mv /etc/redis/redis.conf.bak /etc/redis/redis.conf
+
 mkdir /etc/service/minemeld
 cp $MM_BUILD_PATH/minemeld.runit /etc/service/minemeld/run
 
