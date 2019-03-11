@@ -8,9 +8,7 @@ if [[ -n "${TRAVIS_TAG}" ]]; then
     echo "Pushing jtschichold/minemeld:$TRAVIS_TAG"
     docker push jtschichold/minemeld:"$TRAVIS_TAG"
 
-    if [ "$TRAVIS_BRANCH" == "master" ]; then
-        docker tag jtschichold/minemeld:"$TRAVIS_BRANCH" jtschichold/minemeld:latest
-        echo "Pushing jtschichold/minemeld:latest"
-        docker push jtschichold/minemeld:latest
-    fi
+    docker tag jtschichold/minemeld:"$TRAVIS_BRANCH" jtschichold/minemeld:latest
+    echo "Pushing jtschichold/minemeld:latest"
+    docker push jtschichold/minemeld:latest
 fi
