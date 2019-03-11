@@ -13,4 +13,4 @@ deploy:
   provider: script
   script: chmod +x $TRAVIS_BUILD_DIR/scripts/deploy-image.sh && $TRAVIS_BUILD_DIR/scripts/deploy-image.sh
   on:
-    branch: develop
+    all_branches: true
