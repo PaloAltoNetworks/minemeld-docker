@@ -1,3 +1,5 @@
+baseimage license
+-----------------
 Copyright (c) 2013-2015 Phusion Holding B.V.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
