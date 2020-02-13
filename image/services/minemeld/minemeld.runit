@@ -65,6 +65,7 @@ if [ ! -d ${PIDDIR} ] ; then
 	chown -R minemeld:minemeld ${PIDDIR}
 	chmod 755 ${PIDDIR}
 fi
+rm -rf ${PIDDIR}/*
 
 export REDIS_URL=unix:///var/run/redis/redis.sock
 
