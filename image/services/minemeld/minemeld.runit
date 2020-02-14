@@ -46,6 +46,9 @@ fi
 # configuring git to use the new bundle (SSL Decrypt)
 git config --system http.sslCAInfo /opt/minemeld/local/certs/bundle.crt
 
+# requests should also use the bundle
+export REQUESTS_CA_BUNDLE=/opt/minemeld/local/certs/bundle.crt
+
 if [ -f /opt/minemeld/local/library/freeze.txt ]; then
 	echo "Reinstalling external extensions"
 	sudo -u minemeld xargs -a /opt/minemeld/local/library/freeze.txt -n1 -d'\n' /bin/bash -c 'echo "$0" && (/opt/minemeld/engine/current/bin/pip install --cert /opt/minemeld/local/certs/bundle.crt -c /opt/minemeld/local/library/constraints.txt $0 || true)'
