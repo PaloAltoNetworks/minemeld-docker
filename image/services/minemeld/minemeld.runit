@@ -38,14 +38,20 @@ echo "Copying constraints"
 cp /usr/share/minemeld/constraints.txt /opt/minemeld/local/library/
 chown minemeld:minemeld /opt/minemeld/local/library/constraints.txt
 
-if [ -f /opt/minemeld/local/library/freeze.txt ]; then
-	echo "Reinstalling external extensions"
-	sudo -u minemeld xargs -a /opt/minemeld/local/library/freeze.txt -n1 -d'\n' /bin/bash -c 'echo "$0" && (/opt/minemeld/engine/current/bin/pip install -c /opt/minemeld/local/library/constraints.txt $0 || true)'
-fi
-
 if [ -f /opt/minemeld/engine/current/bin/mm-cacert-merge ]; then
 	echo "Regenarating CA bundle"
 	/opt/minemeld/engine/current/bin/mm-cacert-merge --config /opt/minemeld/local/certs/cacert-merge-config.yml --dst /opt/minemeld/local/certs/bundle.crt /opt/minemeld/local/certs/site/
+fi
+
+# configuring git to use the new bundle (SSL Decrypt)
+git config --system http.sslCAInfo /opt/minemeld/local/certs/bundle.crt
+
+# requests should also use the bundle
+export REQUESTS_CA_BUNDLE=/opt/minemeld/local/certs/bundle.crt
+
+if [ -f /opt/minemeld/local/library/freeze.txt ]; then
+	echo "Reinstalling external extensions"
+	sudo -u minemeld xargs -a /opt/minemeld/local/library/freeze.txt -n1 -d'\n' /bin/bash -c 'echo "$0" && (/opt/minemeld/engine/current/bin/pip install --cert /opt/minemeld/local/certs/bundle.crt -c /opt/minemeld/local/library/constraints.txt $0 || true)'
 fi
 
 # copy default API config anyway
